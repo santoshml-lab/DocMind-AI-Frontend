@@ -1,0 +1,248 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Inter, Arial, sans-serif;
+  background: #f5f7fb;
+  color: #111827;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+/* =========================
+   NAVBAR
+========================= */
+
+.navbar {
+  height: 70px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 40px;
+}
+
+.logo {
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.nav-status {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.status-dot {
+  display: inline-block;
+
+  width: 8px;
+  height: 8px;
+
+  background: #22c55e;
+  border-radius: 50%;
+
+  margin-right: 7px;
+}
+
+/* =========================
+   MAIN
+========================= */
+
+.main-container {
+  max-width: 900px;
+  margin: auto;
+  padding: 70px 20px;
+}
+
+/* =========================
+   HERO
+========================= */
+
+.hero {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.hero-badge {
+  display: inline-block;
+
+  padding: 7px 12px;
+
+  border-radius: 999px;
+
+  background: #eef2ff;
+  color: #4f46e5;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  letter-spacing: 0.5px;
+
+  margin-bottom: 15px;
+}
+
+.hero h1 {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.hero p {
+  max-width: 650px;
+  margin: auto;
+
+  color: #6b7280;
+
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+/* =========================
+   CARDS
+========================= */
+
+.upload-card,
+.chat-card {
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 18px;
+
+  padding: 35px;
+
+  margin-bottom: 25px;
+
+  box-shadow:
+    0 8px 25px rgba(0, 0, 0, 0.05);
+}
+
+/* =========================
+   UPLOAD
+========================= */
+
+.upload-card {
+  text-align: center;
+}
+
+.upload-icon {
+  font-size: 45px;
+  margin-bottom: 15px;
+}
+
+.upload-card h2,
+.chat-card h2 {
+  margin-bottom: 10px;
+}
+
+.upload-card p {
+  color: #6b7280;
+  margin-bottom: 25px;
+}
+
+.file-button {
+  display: inline-block;
+
+  padding: 13px 22px;
+
+  border-radius: 10px;
+
+  background: #111827;
+  color: #ffffff;
+
+  cursor: pointer;
+
+  font-weight: 600;
+}
+
+.file-button input {
+  display: none;
+}
+
+/* =========================
+   CHAT
+========================= */
+
+.chat-input {
+  display: flex;
+
+  gap: 12px;
+
+  margin-top: 20px;
+}
+
+.chat-input input {
+  flex: 1;
+
+  padding: 14px 16px;
+
+  border: 1px solid #d1d5db;
+
+  border-radius: 10px;
+
+  outline: none;
+}
+
+.chat-input input:focus {
+  border-color: #6366f1;
+}
+
+.chat-input button {
+  padding: 14px 22px;
+
+  border: none;
+
+  border-radius: 10px;
+
+  background: #111827;
+
+  color: #ffffff;
+
+  cursor: pointer;
+
+  font-weight: 600;
+}
+
+.chat-input button:hover,
+.file-button:hover {
+  opacity: 0.9;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 650px) {
+
+  .navbar {
+    padding: 0 20px;
+  }
+
+  .nav-status {
+    display: none;
+  }
+
+  .main-container {
+    padding: 45px 16px;
+  }
+
+  .hero h1 {
+    font-size: 38px;
+  }
+
+  .chat-input {
+    flex-direction: column;
+  }
+
+  .chat-input button {
+    width: 100%;
+  }
+}
