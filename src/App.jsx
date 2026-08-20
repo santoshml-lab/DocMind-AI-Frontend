@@ -1,6 +1,7 @@
 import { useState } from "react";
 import UploadBox from "./components/UploadBox";
 import ChatBox from "./components/ChatBox";
+import DocumentList from "./components/DocumentList";
 
 function App() {
   const [document, setDocument] = useState(null);
@@ -43,8 +44,17 @@ function App() {
 
         {/* UPLOAD */}
         <UploadBox
-          onUploadSuccess={setDocument}
-        />
+  onUploadSuccess={(data) => {
+    setDocument(data);
+    setSelectedDocumentId(data.document_id);
+  }}
+/>
+        <DocumentList
+  selectedDocumentId={selectedDocumentId}
+  onSelectDocument={setSelectedDocumentId}
+/>
+          
+        
 
         {/* DOCUMENT INFO */}
         {document && (
@@ -104,10 +114,10 @@ function App() {
 
         {/* CHAT */}
         <ChatBox
-          documentId={
-            document?.document_id || ""
-          }
-        />
+  documentId={selectedDocumentId}
+/>
+          
+            
 
       </main>
     </>
