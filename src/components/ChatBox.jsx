@@ -1,6 +1,7 @@
 import { useState } from "react";
 
-const API_BASE = "https://docmind-ai-backend-nwhv.onrender.com";
+const API_BASE =
+  "https://docmind-ai-backend-nwhv.onrender.com";
 
 function ChatBox({ documentId }) {
   const [query, setQuery] = useState("");
@@ -25,9 +26,11 @@ function ChatBox({ documentId }) {
 
       const response = await fetch(`${API_BASE}/ask`, {
         method: "POST",
+
         headers: {
           "Content-Type": "application/json",
         },
+
         body: JSON.stringify({
           document_id: documentId,
           query: query.trim(),
@@ -52,108 +55,274 @@ function ChatBox({ documentId }) {
     }
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      askDocument();
+    }
+  };
+
   return (
     <section className="chat-card">
 
+      {/* HEADER */}
+
       <div className="chat-header">
-        <div>
-          <span className="section-badge">RAG AI</span>
-          <h2>Ask Your Document</h2>
-          <p>
-            Ask questions and get answers directly
-            from your uploaded PDF.
-          </p>
+
+        <div className="chat-title-area">
+
+          <div className="ai-icon">
+            ✨
+          </div>
+
+          <div>
+
+            <span className="section-badge">
+              RAG AI
+            </span>
+
+            <h2>
+              Ask Your Document
+            </h2>
+
+            <p>
+              Ask questions and get answers
+              directly from your uploaded PDF.
+            </p>
+
+          </div>
+
         </div>
+
+        {documentId && (
+          <div className="chat-ready">
+            <span className="status-dot"></span>
+            Ready
+          </div>
+        )}
+
       </div>
+
+
+      {/* INPUT */}
 
       <div className="chat-input">
 
         <input
           type="text"
-          placeholder="Ask something about your document..."
+          placeholder={
+            documentId
+              ? "Ask something about your document..."
+              : "Upload a document first..."
+          }
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              askDocument();
-            }
-          }}
+          disabled={!documentId || loading}
+          onChange={(e) =>
+            setQuery(e.target.value)
+          }
+          onKeyDown={handleKeyDown}
         />
 
         <button
           onClick={askDocument}
-          disabled={loading}
+          disabled={
+            loading ||
+            !documentId ||
+            !query.trim()
+          }
         >
-          {loading ? "Thinking..." : "Ask 🤖"}
+          {loading
+            ? "Thinking..."
+            : "Ask 🤖"}
         </button>
 
       </div>
 
-      {loading && (
-        <div className="loading-box">
-          🔍 Searching your document...
+
+      {/* HINT */}
+
+      {documentId && !answer && !loading && !error && (
+        <div className="chat-hint">
+          💡 Ask about skills, projects,
+          experience, education or any
+          information inside the PDF.
         </div>
       )}
 
-      {error && (
-        <div className="error-box">
-          ❌ {error}
+
+      {/* LOADING */}
+
+      {loading && (
+        <div className="loading-box">
+
+          <div className="loading-icon">
+            ✨
+          </div>
+
+          <div>
+
+            <strong>
+              Searching your document
+            </strong>
+
+            <p>
+              Finding the most relevant
+              information...
+            </p>
+
+          </div>
+
         </div>
       )}
+
+
+      {/* ERROR */}
+
+      {error && (
+        <div className="error-box">
+
+          <span className="error-icon">
+            ⚠️
+          </span>
+
+          <div>
+            <strong>
+              Something went wrong
+            </strong>
+
+            <p>
+              {error}
+            </p>
+          </div>
+
+        </div>
+      )}
+
+
+      {/* ANSWER */}
 
       {answer && !loading && (
         <div className="answer-box">
 
           <div className="answer-header">
-            <h3>🤖 Answer</h3>
+
+            <div className="answer-title">
+
+              <div className="bot-avatar">
+                🤖
+              </div>
+
+              <div>
+                <h3>
+                  DocMind AI
+                </h3>
+
+                <span>
+                  Answer from your document
+                </span>
+              </div>
+
+            </div>
+
+            <span className="verified-badge">
+              ✓ Verified
+            </span>
+
           </div>
 
-          <p>{answer}</p>
+          <div className="answer-content">
+            <p>{answer}</p>
+          </div>
 
         </div>
       )}
 
+
+      {/* SOURCES */}
+
       {sources.length > 0 && !loading && (
         <div className="sources-box">
 
-          <h3>📚 Sources</h3>
+          <div className="sources-header">
 
-          {sources.map((source, index) => {
+            <div>
+              <h3>
+                📚 Sources
+              </h3>
 
-            const similarity =
-              source.similarity != null
-                ? Math.round(
-                    Number(source.similarity) * 100
-                  )
-                : null;
+              <p>
+                Information retrieved from
+                your document
+              </p>
+            </div>
 
-            return (
-              <div
-                className="source-item"
-                key={`${source.filename}-${source.chunk_index}-${index}`}
-              >
+            <span className="source-count">
+              {sources.length}{" "}
+              {sources.length === 1
+                ? "source"
+                : "sources"}
+            </span>
 
-                <div className="source-info">
+          </div>
 
-                  <strong>
-                    📄 {source.filename}
-                  </strong>
 
-                  <span>
-                    Chunk {source.chunk_index}
-                  </span>
+          <div className="sources-list">
 
-                </div>
+            {sources.map(
+              (source, index) => {
 
-                {similarity !== null && (
-                  <span className="similarity">
-                    {similarity}% match
-                  </span>
-                )}
+                const similarity =
+                  source.similarity != null
+                    ? Math.round(
+                        Number(
+                          source.similarity
+                        ) * 100
+                      )
+                    : null;
 
-              </div>
-            );
-          })}
+                return (
+                  <div
+                    className="source-item"
+                    key={`${source.filename}-${source.chunk_index}-${index}`}
+                  >
+
+                    <div className="source-info">
+
+                      <div className="source-file">
+                        <span>
+                          📄
+                        </span>
+
+                        <strong>
+                          {source.filename}
+                        </strong>
+                      </div>
+
+                      <span className="source-chunk">
+                        Chunk{" "}
+                        {source.chunk_index}
+                      </span>
+
+                    </div>
+
+                    {similarity !== null && (
+                      <div className="similarity">
+                        <span>
+                          {similarity}%
+                        </span>
+
+                        <small>
+                          match
+                        </small>
+                      </div>
+                    )}
+
+                  </div>
+                );
+              }
+            )}
+
+          </div>
 
         </div>
       )}
