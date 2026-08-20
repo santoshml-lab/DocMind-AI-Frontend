@@ -796,3 +796,163 @@ button {
     transition: none !important;
   }
 }
+
+/* =========================================================
+   DOCUMENT INFO CARD
+========================================================= */
+
+.document-card {
+  display: flex;
+  gap: 20px;
+
+  margin-bottom: 25px;
+  padding: 25px;
+
+  background: rgba(255, 255, 255, 0.72);
+
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+
+  border: 1px solid rgba(255, 255, 255, 0.85);
+
+  border-radius: 22px;
+
+  box-shadow:
+    0 20px 50px rgba(15, 23, 42, 0.07),
+    0 4px 15px rgba(15, 23, 42, 0.04);
+}
+
+.document-icon {
+  width: 58px;
+  height: 58px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 16px;
+
+  background: #f1f5ff;
+
+  font-size: 28px;
+}
+
+.document-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.document-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-bottom: 6px;
+}
+
+.document-header h2 {
+  font-size: 19px;
+  letter-spacing: -0.4px;
+}
+
+.ready-badge {
+  padding: 5px 9px;
+
+  border-radius: 999px;
+
+  background: rgba(52, 199, 89, 0.10);
+
+  color: #248a3d;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.document-name {
+  margin-bottom: 18px;
+
+  color: #6e6e73;
+
+  font-size: 13px;
+
+  word-break: break-word;
+}
+
+.document-stats {
+  display: flex;
+  gap: 12px;
+
+  margin-bottom: 16px;
+}
+
+.document-stats div {
+  min-width: 100px;
+
+  padding: 11px 14px;
+
+  background: rgba(245, 245, 247, 0.75);
+
+  border-radius: 12px;
+}
+
+.document-stats span {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #86868b;
+
+  font-size: 11px;
+}
+
+.document-stats strong {
+  color: #1d1d1f;
+
+  font-size: 14px;
+}
+
+.document-id {
+  color: #86868b;
+
+  font-size: 10px;
+
+  word-break: break-all;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 650px) {
+
+  .document-card {
+    gap: 14px;
+
+    padding: 20px;
+
+    border-radius: 18px;
+  }
+
+  .document-icon {
+    width: 48px;
+    height: 48px;
+
+    font-size: 23px;
+  }
+
+  .document-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .document-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .document-stats div {
+    min-width: 0;
+  }
+}
