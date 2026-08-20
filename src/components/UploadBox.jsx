@@ -2,7 +2,7 @@ import { useState } from "react";
 
 const API_BASE = "https://docmind-ai-backend-nwhv.onrender.com";
 
-function UploadBox() {
+function UploadBox({ onUploadSuccess }) {
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
@@ -30,6 +30,9 @@ function UploadBox() {
       if (!response.ok) {
         throw new Error(data.detail || "Upload failed.");
       }
+
+      // Save document_id in parent component
+      onUploadSuccess(data.document_id);
 
       setStatus(
         `Success 🚀 ${data.filename} — ${data.stored_chunks} chunks stored.`
@@ -82,3 +85,8 @@ function UploadBox() {
 }
 
 export default UploadBox;
+
+  
+    
+      
+          
