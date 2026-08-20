@@ -5,11 +5,30 @@ const API_BASE = "https://docmind-ai-backend-nwhv.onrender.com";
 function UploadBox({ onUploadSuccess }) {
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState("");
+  const [statusType, setStatusType] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const handleFileChange = (event) => {
+    const selectedFile = event.target.files[0];
+
+    if (!selectedFile) return;
+
+    if (selectedFile.type !== "application/pdf") {
+      setFile(null);
+      setStatus("Please select a PDF file only.");
+      setStatusType("error");
+      return;
+    }
+
+    setFile(selectedFile);
+    setStatus("");
+    setStatusType("");
+  };
 
   const uploadPDF = async () => {
     if (!file) {
       setStatus("Please choose a PDF first.");
+      setStatusType("error");
       return;
     }
 
@@ -18,7 +37,8 @@ function UploadBox({ onUploadSuccess }) {
 
     try {
       setLoading(true);
-      setStatus("Uploading and processing...");
+      setStatus("Uploading and processing your document...");
+      setStatusType("loading");
 
       const response = await fetch(`${API_BASE}/upload`, {
         method: "POST",
@@ -31,14 +51,17 @@ function UploadBox({ onUploadSuccess }) {
         throw new Error(data.detail || "Upload failed.");
       }
 
-      // Save document_id in parent component
       onUploadSuccess(data.document_id);
 
       setStatus(
-        `Success 🚀 ${data.filename} — ${data.stored_chunks} chunks stored.`
+        `Document ready 🚀 ${data.filename} — ${data.stored_chunks} chunks indexed.`
       );
+
+      setStatusType("success");
+
     } catch (error) {
       setStatus(`Error: ${error.message}`);
+      setStatusType("error");
     } finally {
       setLoading(false);
     }
@@ -46,40 +69,63 @@ function UploadBox({ onUploadSuccess }) {
 
   return (
     <section className="upload-card">
-      <div className="upload-icon">📄</div>
 
-      <h2>Upload Document</h2>
+      <div className="upload-icon">
+        📄
+      </div>
+
+      <h2>Upload Your Document</h2>
 
       <p>
-        Upload a PDF document to start asking questions.
+        Upload a PDF and let DocMind AI build a searchable
+        knowledge base from it.
       </p>
 
       <label className="file-button">
-        {file ? file.name : "Choose PDF"}
+
+        {file ? "📄 " + file.name : "Choose PDF"}
 
         <input
           type="file"
           accept=".pdf,application/pdf"
-          onChange={(e) => setFile(e.target.files[0])}
+          onChange={handleFileChange}
+          disabled={loading}
         />
+
       </label>
 
-      <br />
-      <br />
+      {file && (
+        <div className="selected-file">
+
+          <strong>Selected document</strong>
+
+          <span>
+            {file.name}
+          </span>
+
+          <small>
+            {(file.size / 1024 / 1024).toFixed(2)} MB
+          </small>
+
+        </div>
+      )}
 
       <button
         className="upload-button"
         onClick={uploadPDF}
-        disabled={loading}
+        disabled={loading || !file}
       >
-        {loading ? "Processing..." : "Upload & Process 🚀"}
+        {loading
+          ? "Processing..."
+          : "Upload & Process 🚀"}
       </button>
 
       {status && (
-        <p className="upload-status">
+        <div className={`upload-status ${statusType}`}>
           {status}
-        </p>
+        </div>
       )}
+
     </section>
   );
 }
