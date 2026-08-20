@@ -1,6 +1,6 @@
 import { useState } from "react";
-import UploadBox from "./UploadBox";
-import ChatBox from "./ChatBox";
+import UploadBox from "./components/UploadBox";
+import ChatBox from "./components/ChatBox";
 
 function App() {
   const [documentId, setDocumentId] = useState("");
