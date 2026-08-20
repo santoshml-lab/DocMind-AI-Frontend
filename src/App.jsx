@@ -3,54 +3,53 @@ import UploadBox from "./components/UploadBox";
 import ChatBox from "./components/ChatBox";
 
 function App() {
-  const [documentId, setDocumentId] = useState("");
+  const [document, setDocument] = useState(null);
 
   return (
     <>
-      {/* Navbar */}
-      <nav className="navbar">
-        <div className="logo">
-          🧠 DocMind AI
-        </div>
+      <UploadBox onUploadSuccess={setDocument} />
 
-        <div className="nav-status">
-          <span className="status-dot"></span>
-          AI System Online
-        </div>
-      </nav>
+      {document && (
+        <section className="document-card">
+          <div className="document-icon">📄</div>
 
-      {/* Main */}
-      <main className="main-container">
+          <div className="document-info">
+            <div className="document-header">
+              <h2>Document Ready</h2>
+              <span className="ready-badge">● Ready</span>
+            </div>
 
-        {/* Hero */}
-        <section className="hero">
+            <p className="document-name">
+              {document.filename}
+            </p>
 
-          <span className="hero-badge">
-            AI DOCUMENT INTELLIGENCE
-          </span>
+            <div className="document-stats">
+              <div>
+                <span>Pages</span>
+                <strong>{document.pages}</strong>
+              </div>
 
-          <h1>
-            Chat With Your Documents
-          </h1>
+              <div>
+                <span>Chunks</span>
+                <strong>{document.chunks_count}</strong>
+              </div>
 
-          <p>
-            Upload a PDF and ask questions using
-            document-specific AI powered by RAG.
-          </p>
+              <div>
+                <span>Status</span>
+                <strong>Completed</strong>
+              </div>
+            </div>
 
+            <p className="document-id">
+              Document ID: {document.document_id}
+            </p>
+          </div>
         </section>
+      )}
 
-        {/* Upload */}
-        <UploadBox
-          onUploadSuccess={setDocumentId}
-        />
-
-        {/* Chat */}
-        <ChatBox
-          documentId={documentId}
-        />
-
-      </main>
+      <ChatBox
+        documentId={document?.document_id || ""}
+      />
     </>
   );
 }
