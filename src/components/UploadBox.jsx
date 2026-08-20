@@ -51,7 +51,7 @@ function UploadBox({ onUploadSuccess }) {
         throw new Error(data.detail || "Upload failed.");
       }
 
-      onUploadSuccess(data.document_id);
+      onUploadSuccess(data);
 
       setStatus(
         `Document ready 🚀 ${data.filename} — ${data.stored_chunks} chunks indexed.`
