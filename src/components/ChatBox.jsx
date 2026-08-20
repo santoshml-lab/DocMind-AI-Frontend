@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 
 const API_BASE = "https://docmind-ai-backend-nwhv.onrender.com";
@@ -8,15 +7,13 @@ function ChatBox({ documentId }) {
   const [answer, setAnswer] = useState("");
   const [sources, setSources] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const askDocument = async () => {
-    if (!query.trim()) {
-      return;
-    }
+    if (!query.trim()) return;
 
     if (!documentId) {
-      setAnswer("Please upload a document first.");
-      setSources([]);
+      setError("Please upload a document first.");
       return;
     }
 
@@ -24,6 +21,7 @@ function ChatBox({ documentId }) {
       setLoading(true);
       setAnswer("");
       setSources([]);
+      setError("");
 
       const response = await fetch(`${API_BASE}/ask`, {
         method: "POST",
@@ -32,21 +30,23 @@ function ChatBox({ documentId }) {
         },
         body: JSON.stringify({
           document_id: documentId,
-          query: query,
+          query: query.trim(),
         }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.detail || "Failed to get answer.");
+        throw new Error(
+          data.detail || "Failed to get answer."
+        );
       }
 
       setAnswer(data.answer || "");
       setSources(data.sources || []);
+
     } catch (error) {
-      setAnswer(`Error: ${error.message}`);
-      setSources([]);
+      setError(error.message);
     } finally {
       setLoading(false);
     }
@@ -54,9 +54,20 @@ function ChatBox({ documentId }) {
 
   return (
     <section className="chat-card">
-      <h2>Ask Your Document</h2>
+
+      <div className="chat-header">
+        <div>
+          <span className="section-badge">RAG AI</span>
+          <h2>Ask Your Document</h2>
+          <p>
+            Ask questions and get answers directly
+            from your uploaded PDF.
+          </p>
+        </div>
+      </div>
 
       <div className="chat-input">
+
         <input
           type="text"
           placeholder="Ask something about your document..."
@@ -75,53 +86,78 @@ function ChatBox({ documentId }) {
         >
           {loading ? "Thinking..." : "Ask 🤖"}
         </button>
+
       </div>
 
-      {answer && (
-        <div className="answer-box">
-          <h3>Answer</h3>
-          <p>{answer}</p>
-
-          {sources.length > 0 && (
-            <div className="sources-box">
-              <h3>📚 Sources</h3>
-
-              {sources.map((source, index) => {
-                const rawSimilarity = Number(source.similarity);
-
-              const similarity =
-              rawSimilarity > 1
-             ? rawSimilarity / 100
-             : rawSimilarity;
-
-                return (
-                  <div className="source-item" key={index}>
-                    <div className="source-file">
-                      📄 {source.filename}
-                    </div>
-
-                    <div className="source-meta">
-                      <span>
-                        Chunk {source.chunk_index}
-                      </span>
-
-                      {Number.isFinite(similarity) && (
-                   <span>
-                   {Math.round(similarity * 100)}% match
-                   </span>
-                  )}
-                        
-                          
-                        
-                      
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+      {loading && (
+        <div className="loading-box">
+          🔍 Searching your document...
         </div>
       )}
+
+      {error && (
+        <div className="error-box">
+          ❌ {error}
+        </div>
+      )}
+
+      {answer && !loading && (
+        <div className="answer-box">
+
+          <div className="answer-header">
+            <h3>🤖 Answer</h3>
+          </div>
+
+          <p>{answer}</p>
+
+        </div>
+      )}
+
+      {sources.length > 0 && !loading && (
+        <div className="sources-box">
+
+          <h3>📚 Sources</h3>
+
+          {sources.map((source, index) => {
+
+            const similarity =
+              source.similarity != null
+                ? Math.round(
+                    Number(source.similarity) * 100
+                  )
+                : null;
+
+            return (
+              <div
+                className="source-item"
+                key={`${source.filename}-${source.chunk_index}-${index}`}
+              >
+
+                <div className="source-info">
+
+                  <strong>
+                    📄 {source.filename}
+                  </strong>
+
+                  <span>
+                    Chunk {source.chunk_index}
+                  </span>
+
+                </div>
+
+                {similarity !== null && (
+                  <span className="similarity">
+                    {similarity}% match
+                  </span>
+                )}
+
+              </div>
+            );
+          })}
+
+        </div>
+      )}
+
     </section>
   );
 }
