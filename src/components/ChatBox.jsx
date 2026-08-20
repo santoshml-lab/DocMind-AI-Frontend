@@ -87,7 +87,12 @@ function ChatBox({ documentId }) {
               <h3>📚 Sources</h3>
 
               {sources.map((source, index) => {
-                const similarity = Number(source.similarity);
+                const rawSimilarity = Number(source.similarity);
+
+              const similarity =
+              rawSimilarity > 1
+             ? rawSimilarity / 100
+             : rawSimilarity;
 
                 return (
                   <div className="source-item" key={index}>
@@ -101,10 +106,14 @@ function ChatBox({ documentId }) {
                       </span>
 
                       {Number.isFinite(similarity) && (
-                        <span>
-                          {Math.round(similarity * 100)}% match
-                        </span>
-                      )}
+                   <span>
+                   {Math.round(similarity * 100)}% match
+                   </span>
+                  )}
+                        
+                          
+                        
+                      
                     </div>
                   </div>
                 );
