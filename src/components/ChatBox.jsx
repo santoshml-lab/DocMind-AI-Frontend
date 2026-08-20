@@ -2,13 +2,18 @@ import { useState } from "react";
 
 const API_BASE = "https://docmind-ai-backend-nwhv.onrender.com";
 
-function ChatBox() {
+function ChatBox({ documentId }) {
   const [query, setQuery] = useState("");
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
 
   const askDocument = async () => {
     if (!query.trim()) {
+      return;
+    }
+
+    if (!documentId) {
+      setAnswer("Please upload a document first.");
       return;
     }
 
@@ -22,6 +27,7 @@ function ChatBox() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          document_id: documentId,
           query: query,
         }),
       });
