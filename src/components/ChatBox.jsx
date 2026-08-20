@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 
 const API_BASE = "https://docmind-ai-backend-nwhv.onrender.com";
@@ -5,6 +6,7 @@ const API_BASE = "https://docmind-ai-backend-nwhv.onrender.com";
 function ChatBox({ documentId }) {
   const [query, setQuery] = useState("");
   const [answer, setAnswer] = useState("");
+  const [sources, setSources] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const askDocument = async () => {
@@ -14,12 +16,14 @@ function ChatBox({ documentId }) {
 
     if (!documentId) {
       setAnswer("Please upload a document first.");
+      setSources([]);
       return;
     }
 
     try {
       setLoading(true);
       setAnswer("");
+      setSources([]);
 
       const response = await fetch(`${API_BASE}/ask`, {
         method: "POST",
@@ -38,9 +42,11 @@ function ChatBox({ documentId }) {
         throw new Error(data.detail || "Failed to get answer.");
       }
 
-      setAnswer(data.answer);
+      setAnswer(data.answer || "");
+      setSources(data.sources || []);
     } catch (error) {
       setAnswer(`Error: ${error.message}`);
+      setSources([]);
     } finally {
       setLoading(false);
     }
@@ -75,6 +81,36 @@ function ChatBox({ documentId }) {
         <div className="answer-box">
           <h3>Answer</h3>
           <p>{answer}</p>
+
+          {sources.length > 0 && (
+            <div className="sources-box">
+              <h3>📚 Sources</h3>
+
+              {sources.map((source, index) => {
+                const similarity = Number(source.similarity);
+
+                return (
+                  <div className="source-item" key={index}>
+                    <div className="source-file">
+                      📄 {source.filename}
+                    </div>
+
+                    <div className="source-meta">
+                      <span>
+                        Chunk {source.chunk_index}
+                      </span>
+
+                      {Number.isFinite(similarity) && (
+                        <span>
+                          {Math.round(similarity * 100)}% match
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
     </section>
