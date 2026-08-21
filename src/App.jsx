@@ -4,6 +4,7 @@ import UploadBox from "./components/UploadBox";
 import DocumentList from "./components/DocumentList";
 import ChatBox from "./components/ChatBox";
 import EvaluatePanel from "./components/EvaluatePanel";
+import DocumentDashboard from "./components/DocumentDashboard";
 
 
 function App() {
@@ -195,6 +196,13 @@ function App() {
           </section>
 
         )}
+
+        <DocumentDashboard />
+
+<DocumentList
+  selectedDocumentId={selectedDocumentId}
+  onSelectDocument={setSelectedDocumentId}
+/>
 
 
 
