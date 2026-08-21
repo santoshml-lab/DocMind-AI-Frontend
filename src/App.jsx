@@ -1,10 +1,10 @@
 import { useState } from "react";
 
 import UploadBox from "./components/UploadBox";
+import DocumentDashboard from "./components/DocumentDashboard";
 import DocumentList from "./components/DocumentList";
 import ChatBox from "./components/ChatBox";
 import EvaluatePanel from "./components/EvaluatePanel";
-import DocumentDashboard from "./components/DocumentDashboard";
 
 
 function App() {
@@ -56,27 +56,19 @@ function App() {
             AI • RAG • DOCUMENT INTELLIGENCE
           </div>
 
-
           <h1>
-
             Ask Anything.
             <br />
-
             From Your Documents.
-
           </h1>
 
-
           <p>
-
             Upload your PDF and let DocMind AI
             understand, search and answer questions
             from your documents.
-
           </p>
 
         </section>
-
 
 
         {/* =========================
@@ -98,7 +90,6 @@ function App() {
         />
 
 
-
         {/* =========================
             DOCUMENT READY
         ========================= */}
@@ -111,7 +102,6 @@ function App() {
               📄
             </div>
 
-
             <div className="document-info">
 
               <div className="document-header">
@@ -120,25 +110,19 @@ function App() {
                   Document Ready
                 </h2>
 
-
                 <span className="ready-badge">
-
                   ● Ready
-
                 </span>
 
               </div>
 
 
               <p className="document-name">
-
                 {document.filename}
-
               </p>
 
 
               <div className="document-stats">
-
 
                 <div>
 
@@ -178,7 +162,6 @@ function App() {
 
                 </div>
 
-
               </div>
 
 
@@ -190,20 +173,18 @@ function App() {
 
               </p>
 
-
             </div>
 
           </section>
 
         )}
 
+
+        {/* =========================
+            DOCUMENT INTELLIGENCE
+        ========================= */}
+
         <DocumentDashboard />
-
-<DocumentList
-  selectedDocumentId={selectedDocumentId}
-  onSelectDocument={setSelectedDocumentId}
-/>
-
 
 
         {/* =========================
@@ -221,7 +202,6 @@ function App() {
           }
 
         />
-
 
 
         {/* =========================
@@ -249,11 +229,9 @@ function App() {
 
         />
 
-
       </main>
 
     </>
-
   );
 
 }
