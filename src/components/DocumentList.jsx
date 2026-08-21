@@ -1,42 +1,91 @@
 import { useEffect, useState } from "react";
 
-const API_BASE = "https://docmind-ai-backend-nwhv.onrender.com";
+const API_BASE =
+  "https://docmind-ai-backend-nwhv.onrender.com";
 
-function DocumentList({ selectedDocumentId, onSelectDocument }) {
+function DocumentList({
+  selectedDocumentId,
+  onSelectDocument,
+}) {
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [deletingId, setDeletingId] = useState("");
+  const [error, setError] = useState("");
 
-  const fetchDocuments = async () => {
+  // =====================================================
+  // FETCH DOCUMENTS
+  // =====================================================
+
+  const fetchDocuments = async (showRefresh = false) => {
     try {
-      setLoading(true);
+      if (showRefresh) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
 
-      const response = await fetch(`${API_BASE}/documents`);
+      setError("");
+
+      const response = await fetch(
+        `${API_BASE}/documents`
+      );
+
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.detail || "Failed to load documents.");
+        throw new Error(
+          data.detail ||
+            "Failed to load documents."
+        );
       }
 
       setDocuments(data.documents || []);
+
     } catch (error) {
       console.error(error);
+
+      setError(
+        error.message ||
+          "Something went wrong while loading documents."
+      );
+
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
+
+  // =====================================================
+  // INITIAL LOAD
+  // =====================================================
 
   useEffect(() => {
     fetchDocuments();
   }, []);
 
+  // =====================================================
+  // DELETE DOCUMENT
+  // =====================================================
+
   const deleteDocument = async (documentId) => {
+    const document = documents.find(
+      (doc) => doc.id === documentId
+    );
+
+    const filename =
+      document?.filename || "this document";
+
     const confirmed = window.confirm(
-      "Delete this document?"
+      `Are you sure you want to delete "${filename}"?\n\nThis action cannot be undone.`
     );
 
     if (!confirmed) return;
 
     try {
+      setDeletingId(documentId);
+      setError("");
+
       const response = await fetch(
         `${API_BASE}/documents/${documentId}`,
         {
@@ -48,39 +97,83 @@ function DocumentList({ selectedDocumentId, onSelectDocument }) {
 
       if (!response.ok) {
         throw new Error(
-          data.detail || "Failed to delete document."
+          data.detail ||
+            "Failed to delete document."
         );
       }
 
+      // Remove from UI immediately
       setDocuments((current) =>
         current.filter(
           (doc) => doc.id !== documentId
         )
       );
 
-      if (selectedDocumentId === documentId) {
+      // Clear active document
+      if (
+        selectedDocumentId === documentId
+      ) {
         onSelectDocument("");
       }
 
     } catch (error) {
-      alert(error.message);
+      console.error(error);
+
+      setError(
+        error.message ||
+          "Failed to delete document."
+      );
+
+    } finally {
+      setDeletingId("");
     }
   };
+
+  // =====================================================
+  // LOADING
+  // =====================================================
 
   if (loading) {
     return (
       <section className="documents-card">
-        <h2>📚 Your Documents</h2>
-        <p>Loading documents...</p>
+
+        <div className="documents-header">
+
+          <div>
+            <span className="section-badge">
+              DOCUMENT LIBRARY
+            </span>
+
+            <h2>Your Documents</h2>
+
+            <p>
+              Loading your document library...
+            </p>
+          </div>
+
+        </div>
+
+        <div className="loading-box">
+          🔄 Loading documents...
+        </div>
+
       </section>
     );
   }
 
+  // =====================================================
+  // UI
+  // =====================================================
+
   return (
     <section className="documents-card">
 
+      {/* HEADER */}
+
       <div className="documents-header">
+
         <div>
+
           <span className="section-badge">
             DOCUMENT LIBRARY
           </span>
@@ -88,76 +181,182 @@ function DocumentList({ selectedDocumentId, onSelectDocument }) {
           <h2>Your Documents</h2>
 
           <p>
-            Select a document to start asking questions.
+            Select a document to start asking
+            questions.
           </p>
+
         </div>
 
-        <span className="document-count">
-          {documents.length} documents
-        </span>
+        <div className="document-header-actions">
+
+          <span className="document-count">
+            {documents.length}{" "}
+            {documents.length === 1
+              ? "document"
+              : "documents"}
+          </span>
+
+          <button
+            className="refresh-button"
+            onClick={() =>
+              fetchDocuments(true)
+            }
+            disabled={refreshing}
+          >
+            {refreshing
+              ? "Refreshing..."
+              : "↻ Refresh"}
+          </button>
+
+        </div>
+
       </div>
+
+      {/* ERROR */}
+
+      {error && (
+        <div className="error-box">
+          ❌ {error}
+        </div>
+      )}
+
+      {/* EMPTY */}
 
       {documents.length === 0 ? (
         <div className="empty-documents">
-          <div>📄</div>
-          <h3>No documents yet</h3>
-          <p>Upload a PDF to get started.</p>
+
+          <div className="empty-document-icon">
+            📄
+          </div>
+
+          <h3>
+            No documents yet
+          </h3>
+
+          <p>
+            Upload a PDF to get started.
+          </p>
+
         </div>
       ) : (
+
+        /* DOCUMENT LIST */
+
         <div className="document-list">
 
-          {documents.map((document) => (
-            <div
-              className={`document-item ${
-                selectedDocumentId === document.id
-                  ? "selected"
-                  : ""
-              }`}
-              key={document.id}
-            >
+          {documents.map((document) => {
 
-              <div className="document-icon">
-                📄
+            const isSelected =
+              selectedDocumentId ===
+              document.id;
+
+            const isProcessing =
+              document.status !==
+              "completed";
+
+            const isDeleting =
+              deletingId ===
+              document.id;
+
+            return (
+
+              <div
+                className={`document-item ${
+                  isSelected
+                    ? "selected"
+                    : ""
+                }`}
+                key={document.id}
+              >
+
+                {/* ICON */}
+
+                <div className="document-icon">
+                  📄
+                </div>
+
+                {/* INFO */}
+
+                <div className="document-info">
+
+                  <strong>
+                    {document.filename}
+                  </strong>
+
+                  <span>
+                    {document.pages}{" "}
+                    {document.pages === 1
+                      ? "page"
+                      : "pages"}{" "}
+                    •{" "}
+                    {document.chunks_count}{" "}
+                    chunks
+                  </span>
+
+                  {/* STATUS */}
+
+                  <small
+                    className={
+                      document.status ===
+                      "completed"
+                        ? "document-ready"
+                        : "document-processing"
+                    }
+                  >
+                    {document.status ===
+                    "completed"
+                      ? "● Ready"
+                      : `● ${document.status}`}
+                  </small>
+
+                </div>
+
+                {/* ACTIONS */}
+
+                <div className="document-actions">
+
+                  {/* SELECT */}
+
+                  <button
+                    className="select-button"
+                    disabled={
+                      isProcessing ||
+                      isDeleting
+                    }
+                    onClick={() =>
+                      onSelectDocument(
+                        document.id
+                      )
+                    }
+                  >
+                    {isSelected
+                      ? "Active ✓"
+                      : isProcessing
+                      ? "Processing..."
+                      : "Select"}
+                  </button>
+
+                  {/* DELETE */}
+
+                  <button
+                    className="delete-button"
+                    disabled={isDeleting}
+                    onClick={() =>
+                      deleteDocument(
+                        document.id
+                      )
+                    }
+                  >
+                    {isDeleting
+                      ? "Deleting..."
+                      : "Delete"}
+                  </button>
+
+                </div>
+
               </div>
-
-              <div className="document-info">
-                <strong>
-                  {document.filename}
-                </strong>
-
-                <span>
-                  {document.pages} page
-                  {document.pages !== 1 ? "s" : ""} •{" "}
-                  {document.chunks_count} chunks
-                </span>
-              </div>
-
-              <div className="document-actions">
-
-                <button
-                  className="select-button"
-                  onClick={() =>
-                    onSelectDocument(document.id)
-                  }
-                >
-                  {selectedDocumentId === document.id
-                    ? "Selected ✓"
-                    : "Select"}
-                </button>
-
-                <button
-                  className="delete-button"
-                  onClick={() =>
-                    deleteDocument(document.id)
-                  }
-                >
-                  Delete
-                </button>
-
-              </div>
-
-            </div>
-          ))}
+            );
+          })}
 
         </div>
       )}
