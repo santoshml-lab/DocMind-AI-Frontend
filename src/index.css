@@ -1613,3 +1613,202 @@ button {
     flex: 1;
   }
 }
+
+/* =========================
+   EVALUATION PANEL
+========================= */
+
+.evaluation-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  padding: 35px;
+  margin-bottom: 25px;
+  box-shadow:
+    0 8px 25px rgba(0, 0, 0, 0.05);
+}
+
+.evaluation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 25px;
+}
+
+.evaluation-header h2 {
+  margin: 10px 0;
+}
+
+.evaluation-header p {
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+.evaluate-button {
+  border: none;
+  background: #111827;
+  color: #ffffff;
+  padding: 13px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.evaluate-button:hover {
+  opacity: 0.9;
+}
+
+.evaluate-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* METRICS */
+
+.evaluation-metrics {
+  display: grid;
+  grid-template-columns:
+    repeat(4, 1fr);
+
+  gap: 15px;
+
+  margin-top: 30px;
+}
+
+.metric-card {
+  padding: 22px;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 14px;
+
+  background: #f9fafb;
+}
+
+.metric-card span {
+  display: block;
+
+  color: #6b7280;
+
+  font-size: 13px;
+
+  margin-bottom: 8px;
+}
+
+.metric-card strong {
+  font-size: 28px;
+}
+
+/* SUMMARY */
+
+.evaluation-summary {
+  margin-top: 25px;
+
+  padding: 20px;
+
+  background: #f9fafb;
+
+  border-radius: 14px;
+}
+
+.evaluation-summary h3 {
+  margin-bottom: 7px;
+}
+
+.evaluation-summary p {
+  color: #6b7280;
+}
+
+/* TESTS */
+
+.evaluation-tests {
+  margin-top: 25px;
+}
+
+.evaluation-tests h3 {
+  margin-bottom: 15px;
+}
+
+.evaluation-test {
+  border: 1px solid #e5e7eb;
+
+  border-radius: 14px;
+
+  padding: 18px;
+
+  margin-bottom: 12px;
+}
+
+.test-header {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+}
+
+.test-passed {
+  color: #16a34a;
+
+  font-weight: 700;
+}
+
+.test-failed {
+  color: #dc2626;
+
+  font-weight: 700;
+}
+
+.test-query {
+  margin-top: 10px;
+
+  color: #374151;
+
+  line-height: 1.5;
+}
+
+.test-details {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 15px;
+
+  margin-top: 12px;
+
+  color: #6b7280;
+
+  font-size: 13px;
+}
+
+/* MOBILE */
+
+@media (max-width: 750px) {
+
+  .evaluation-header {
+    flex-direction: column;
+
+    align-items: flex-start;
+  }
+
+  .evaluate-button {
+    width: 100%;
+  }
+
+  .evaluation-metrics {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+
+  .evaluation-card {
+    padding: 22px;
+  }
+
+  .evaluation-metrics {
+    grid-template-columns: 1fr;
+  }
+}
