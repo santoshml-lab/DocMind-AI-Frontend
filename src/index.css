@@ -2256,3 +2256,196 @@ button {
   }
 
      }
+
+/* =========================
+   DASHBOARD V2
+========================= */
+
+.dashboard-refresh {
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  padding: 10px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.dashboard-refresh:hover {
+  background: #f9fafb;
+}
+
+.dashboard-refresh:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+
+/* HEALTH */
+
+.dashboard-health {
+  margin-top: 24px;
+  padding: 14px 18px;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fafafa;
+}
+
+.health-indicator {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.health-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.health-dot.healthy {
+  background: #22c55e;
+}
+
+.health-dot.warning {
+  background: #f59e0b;
+}
+
+.health-dot.danger {
+  background: #ef4444;
+}
+
+.dashboard-health > span {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+
+/* METRIC ICON */
+
+.metric-icon {
+  font-size: 24px;
+  margin-bottom: 12px;
+}
+
+
+/* PIPELINE */
+
+.pipeline-card {
+  margin-top: 22px;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  background: #f9fafb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.pipeline-card > div:first-child span {
+  display: block;
+  color: #6b7280;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.pipeline-card > div:first-child strong {
+  font-size: 15px;
+}
+
+.pipeline-stats {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pipeline-stats span {
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.pipeline-completed {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.pipeline-processing {
+  background: #fffbeb;
+  color: #b45309;
+}
+
+.pipeline-failed {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+
+/* ERROR */
+
+.dashboard-error {
+  margin-top: 18px;
+  padding: 13px 16px;
+  border-radius: 12px;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 13px;
+}
+
+
+/* LOADING */
+
+.dashboard-loading {
+  text-align: center;
+  padding: 45px 20px;
+}
+
+.dashboard-loading-icon {
+  font-size: 38px;
+  margin-bottom: 12px;
+}
+
+.dashboard-loading strong {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.dashboard-loading p {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+
+  .dashboard-header {
+    flex-direction: column;
+  }
+
+  .dashboard-refresh {
+    width: 100%;
+  }
+
+  .dashboard-health {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .pipeline-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pipeline-stats {
+    width: 100%;
+  }
+
+}
