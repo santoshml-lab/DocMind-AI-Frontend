@@ -4,158 +4,87 @@ const API_BASE =
   "https://docmind-ai-backend-nwhv.onrender.com";
 
 function DocumentDashboard() {
-
-  const [documents, setDocuments] = useState([]);
+  const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState("");
 
-
-  const fetchDocuments = async (isRefresh = false) => {
-
+  const fetchAnalytics = async () => {
     try {
-
-      if (isRefresh) {
-        setRefreshing(true);
-      } else {
-        setLoading(true);
-      }
-
-      setError("");
+      setLoading(true);
 
       const response = await fetch(
-        `${API_BASE}/documents`
+        `${API_BASE}/analytics`
       );
 
       const data = await response.json();
 
       if (!response.ok) {
-
         throw new Error(
-          data.detail ||
-          "Failed to load documents."
+          data.detail || "Failed to load analytics."
         );
-
       }
 
-      setDocuments(
-        data.documents || []
-      );
+      setAnalytics(data);
 
     } catch (error) {
-
-      console.error(error);
-
-      setError(
-        error.message ||
-        "Unable to load document data."
+      console.error(
+        "Analytics error:",
+        error
       );
-
     } finally {
-
       setLoading(false);
-      setRefreshing(false);
-
     }
-
   };
 
-
   useEffect(() => {
+    fetchAnalytics();
 
-    fetchDocuments();
+    const interval = setInterval(
+      fetchAnalytics,
+      10000
+    );
 
+    return () => clearInterval(interval);
   }, []);
 
-
-  const totalDocuments =
-    documents.length;
-
-
-  const completedDocuments =
-    documents.filter(
-      (doc) =>
-        doc.status === "completed"
-    ).length;
-
-
-  const processingDocuments =
-    documents.filter(
-      (doc) =>
-        doc.status === "processing"
-    ).length;
-
-
-  const failedDocuments =
-    documents.filter(
-      (doc) =>
-        doc.status === "failed"
-    ).length;
-
-
-  const totalPages =
-    documents.reduce(
-      (total, doc) =>
-        total +
-        Number(doc.pages || 0),
-      0
-    );
-
-
-  const totalChunks =
-    documents.reduce(
-      (total, doc) =>
-        total +
-        Number(doc.chunks_count || 0),
-      0
-    );
-
-
-  const healthStatus =
-    failedDocuments > 0
-      ? "Attention Needed"
-      : processingDocuments > 0
-      ? "Processing"
-      : "Healthy";
-
-
-  if (loading) {
-
+  if (loading || !analytics) {
     return (
-
       <section className="dashboard-card">
+        <div className="dashboard-header">
+          <div>
+            <span className="section-badge">
+              DOCUMENT INTELLIGENCE
+            </span>
 
-        <div className="dashboard-loading">
+            <h2>
+              Document Dashboard
+            </h2>
 
-          <div className="dashboard-loading-icon">
-            📊
+            <p>
+              Loading document intelligence...
+            </p>
           </div>
 
-          <strong>
-            Loading Document Intelligence...
-          </strong>
-
-          <p>
-            Connecting to your knowledge base.
-          </p>
-
+          <div className="dashboard-icon">
+            📊
+          </div>
         </div>
-
       </section>
-
     );
-
   }
 
+  const documents =
+    analytics.documents || {};
+
+  const knowledgeBase =
+    analytics.knowledge_base || {};
+
+  const health =
+    knowledgeBase.health || "unknown";
 
   return (
-
     <section className="dashboard-card">
 
-
-      {/* =========================
-          HEADER
-      ========================= */}
+      {/* HEADER */}
 
       <div className="dashboard-header">
 
@@ -170,85 +99,35 @@ function DocumentDashboard() {
           </h2>
 
           <p>
-            Monitor your documents,
-            knowledge base and RAG pipeline.
+            Monitor your documents and RAG
+            knowledge base in real time.
           </p>
 
         </div>
 
-
-        <button
-          className="dashboard-refresh"
-          onClick={() =>
-            fetchDocuments(true)
-          }
-          disabled={refreshing}
-        >
-
-          {refreshing
-            ? "Refreshing..."
-            : "↻ Refresh"}
-
-        </button>
-
-      </div>
-
-
-      {/* =========================
-          HEALTH
-      ========================= */}
-
-      <div className="dashboard-health">
-
-        <div className="health-indicator">
-
-          <span
-            className={`health-dot ${
-              failedDocuments > 0
-                ? "danger"
-                : processingDocuments > 0
-                ? "warning"
-                : "healthy"
-            }`}
-          />
-
-          <strong>
-            {healthStatus}
-          </strong>
-
+        <div className="dashboard-icon">
+          📊
         </div>
 
-
-        <span>
-          RAG Knowledge Base
-        </span>
-
       </div>
 
 
-      {/* =========================
-          MAIN METRICS
-      ========================= */}
+      {/* METRICS */}
 
       <div className="dashboard-metrics">
 
-
         <div className="dashboard-metric">
-
-          <div className="metric-icon">
-            📄
-          </div>
 
           <span>
             Total Documents
           </span>
 
           <strong>
-            {totalDocuments}
+            {documents.total || 0}
           </strong>
 
           <small>
-            Uploaded files
+            Uploaded documents
           </small>
 
         </div>
@@ -256,20 +135,16 @@ function DocumentDashboard() {
 
         <div className="dashboard-metric">
 
-          <div className="metric-icon">
-            ✅
-          </div>
-
           <span>
-            Completed
+            Ready
           </span>
 
           <strong>
-            {completedDocuments}
+            {documents.completed || 0}
           </strong>
 
           <small>
-            Ready for questions
+            Completed documents
           </small>
 
         </div>
@@ -277,20 +152,16 @@ function DocumentDashboard() {
 
         <div className="dashboard-metric">
 
-          <div className="metric-icon">
-            📑
-          </div>
-
           <span>
-            Total Pages
+            Processing
           </span>
 
           <strong>
-            {totalPages}
+            {documents.processing || 0}
           </strong>
 
           <small>
-            Across all documents
+            Currently processing
           </small>
 
         </div>
@@ -298,20 +169,16 @@ function DocumentDashboard() {
 
         <div className="dashboard-metric">
 
-          <div className="metric-icon">
-            🧩
-          </div>
-
           <span>
-            Knowledge Chunks
+            Total Chunks
           </span>
 
           <strong>
-            {totalChunks}
+            {knowledgeBase.total_chunks || 0}
           </strong>
 
           <small>
-            Indexed RAG units
+            RAG knowledge units
           </small>
 
         </div>
@@ -319,159 +186,65 @@ function DocumentDashboard() {
       </div>
 
 
-      {/* =========================
-          PIPELINE STATUS
-      ========================= */}
+      {/* KNOWLEDGE BASE */}
 
-      <div className="pipeline-card">
+      <div className="dashboard-health">
 
         <div>
 
-          <span>
-            RAG Pipeline
+          <span className="health-label">
+            Knowledge Base
           </span>
 
           <strong>
-            Document Processing
+            {knowledgeBase.total_pages || 0} Pages
+            {" • "}
+            {knowledgeBase.total_chunks || 0} Chunks
           </strong>
 
         </div>
 
 
-        <div className="pipeline-stats">
+        <div
+          className={`health-status ${health}`}
+        >
 
-          <span className="pipeline-completed">
-            {completedDocuments} Ready
-          </span>
+          <span className="health-dot"></span>
 
-          <span className="pipeline-processing">
-            {processingDocuments} Processing
-          </span>
-
-          <span className="pipeline-failed">
-            {failedDocuments} Failed
-          </span>
+          {health === "healthy"
+            ? "Healthy"
+            : health === "processing"
+            ? "Processing"
+            : health === "attention_needed"
+            ? "Attention Needed"
+            : "Unknown"}
 
         </div>
 
       </div>
 
 
-      {/* =========================
-          ERROR
-      ========================= */}
+      {/* FAILED DOCUMENTS */}
 
-      {error && (
+      {(documents.failed || 0) > 0 && (
 
-        <div className="dashboard-error">
+        <div className="dashboard-warning">
 
-          ⚠️ {error}
+          ⚠️
+
+          <span>
+            {documents.failed} document
+            {documents.failed !== 1
+              ? "s"
+              : ""} failed to process.
+          </span>
 
         </div>
 
       )}
 
-
-      {/* =========================
-          RECENT DOCUMENTS
-      ========================= */}
-
-      <div className="dashboard-documents">
-
-        <div className="dashboard-section-header">
-
-          <div>
-
-            <h3>
-              Recent Documents
-            </h3>
-
-            <p>
-              Latest files in your knowledge base.
-            </p>
-
-          </div>
-
-          <span>
-            {totalDocuments} total
-          </span>
-
-        </div>
-
-
-        {documents.length === 0 ? (
-
-          <div className="dashboard-empty">
-
-            <div>
-              📄
-            </div>
-
-            <strong>
-              No documents yet
-            </strong>
-
-            <p>
-              Upload a PDF to build your
-              knowledge base.
-            </p>
-
-          </div>
-
-        ) : (
-
-          documents
-            .slice(0, 5)
-            .map((doc) => (
-
-              <div
-                className="dashboard-document"
-                key={doc.id}
-              >
-
-                <div className="dashboard-document-icon">
-                  📄
-                </div>
-
-
-                <div className="dashboard-document-info">
-
-                  <strong>
-                    {doc.filename}
-                  </strong>
-
-                  <span>
-                    {doc.pages} page
-                    {doc.pages !== 1
-                      ? "s"
-                      : ""}{" "}
-                    •{" "}
-                    {doc.chunks_count} chunks
-                  </span>
-
-                </div>
-
-
-                <span
-                  className={`dashboard-status ${doc.status}`}
-                >
-                  {doc.status}
-                </span>
-
-              </div>
-
-            ))
-
-        )}
-
-      </div>
-
-
     </section>
-
   );
-
 }
-
 
 export default DocumentDashboard;
