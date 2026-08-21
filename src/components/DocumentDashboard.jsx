@@ -7,12 +7,21 @@ function DocumentDashboard() {
 
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState("");
 
-  const fetchDocuments = async () => {
+
+  const fetchDocuments = async (isRefresh = false) => {
 
     try {
 
-      setLoading(true);
+      if (isRefresh) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
+
+      setError("");
 
       const response = await fetch(
         `${API_BASE}/documents`
@@ -21,10 +30,12 @@ function DocumentDashboard() {
       const data = await response.json();
 
       if (!response.ok) {
+
         throw new Error(
           data.detail ||
           "Failed to load documents."
         );
+
       }
 
       setDocuments(
@@ -35,11 +46,18 @@ function DocumentDashboard() {
 
       console.error(error);
 
+      setError(
+        error.message ||
+        "Unable to load document data."
+      );
+
     } finally {
 
       setLoading(false);
+      setRefreshing(false);
 
     }
+
   };
 
 
@@ -68,6 +86,22 @@ function DocumentDashboard() {
     ).length;
 
 
+  const failedDocuments =
+    documents.filter(
+      (doc) =>
+        doc.status === "failed"
+    ).length;
+
+
+  const totalPages =
+    documents.reduce(
+      (total, doc) =>
+        total +
+        Number(doc.pages || 0),
+      0
+    );
+
+
   const totalChunks =
     documents.reduce(
       (total, doc) =>
@@ -77,30 +111,34 @@ function DocumentDashboard() {
     );
 
 
+  const healthStatus =
+    failedDocuments > 0
+      ? "Attention Needed"
+      : processingDocuments > 0
+      ? "Processing"
+      : "Healthy";
+
+
   if (loading) {
 
     return (
 
       <section className="dashboard-card">
 
-        <div className="dashboard-header">
+        <div className="dashboard-loading">
 
-          <div>
-
-            <span className="section-badge">
-              DOCUMENT INTELLIGENCE
-            </span>
-
-            <h2>
-              Document Dashboard
-            </h2>
-
+          <div className="dashboard-loading-icon">
+            📊
           </div>
 
-        </div>
+          <strong>
+            Loading Document Intelligence...
+          </strong>
 
-        <div className="dashboard-loading">
-          Loading document intelligence...
+          <p>
+            Connecting to your knowledge base.
+          </p>
+
         </div>
 
       </section>
@@ -114,7 +152,10 @@ function DocumentDashboard() {
 
     <section className="dashboard-card">
 
-      {/* HEADER */}
+
+      {/* =========================
+          HEADER
+      ========================= */}
 
       <div className="dashboard-header">
 
@@ -129,24 +170,74 @@ function DocumentDashboard() {
           </h2>
 
           <p>
-            Monitor your documents and
-            RAG knowledge base.
+            Monitor your documents,
+            knowledge base and RAG pipeline.
           </p>
 
         </div>
 
-        <div className="dashboard-icon">
-          📊
-        </div>
+
+        <button
+          className="dashboard-refresh"
+          onClick={() =>
+            fetchDocuments(true)
+          }
+          disabled={refreshing}
+        >
+
+          {refreshing
+            ? "Refreshing..."
+            : "↻ Refresh"}
+
+        </button>
 
       </div>
 
 
-      {/* METRICS */}
+      {/* =========================
+          HEALTH
+      ========================= */}
+
+      <div className="dashboard-health">
+
+        <div className="health-indicator">
+
+          <span
+            className={`health-dot ${
+              failedDocuments > 0
+                ? "danger"
+                : processingDocuments > 0
+                ? "warning"
+                : "healthy"
+            }`}
+          />
+
+          <strong>
+            {healthStatus}
+          </strong>
+
+        </div>
+
+
+        <span>
+          RAG Knowledge Base
+        </span>
+
+      </div>
+
+
+      {/* =========================
+          MAIN METRICS
+      ========================= */}
 
       <div className="dashboard-metrics">
 
+
         <div className="dashboard-metric">
+
+          <div className="metric-icon">
+            📄
+          </div>
 
           <span>
             Total Documents
@@ -165,8 +256,12 @@ function DocumentDashboard() {
 
         <div className="dashboard-metric">
 
+          <div className="metric-icon">
+            ✅
+          </div>
+
           <span>
-            Ready
+            Completed
           </span>
 
           <strong>
@@ -174,7 +269,7 @@ function DocumentDashboard() {
           </strong>
 
           <small>
-            Completed documents
+            Ready for questions
           </small>
 
         </div>
@@ -182,16 +277,20 @@ function DocumentDashboard() {
 
         <div className="dashboard-metric">
 
+          <div className="metric-icon">
+            📑
+          </div>
+
           <span>
-            Processing
+            Total Pages
           </span>
 
           <strong>
-            {processingDocuments}
+            {totalPages}
           </strong>
 
           <small>
-            Currently processing
+            Across all documents
           </small>
 
         </div>
@@ -199,8 +298,12 @@ function DocumentDashboard() {
 
         <div className="dashboard-metric">
 
+          <div className="metric-icon">
+            🧩
+          </div>
+
           <span>
-            Total Chunks
+            Knowledge Chunks
           </span>
 
           <strong>
@@ -208,7 +311,7 @@ function DocumentDashboard() {
           </strong>
 
           <small>
-            RAG knowledge units
+            Indexed RAG units
           </small>
 
         </div>
@@ -216,18 +319,81 @@ function DocumentDashboard() {
       </div>
 
 
-      {/* RECENT DOCUMENTS */}
+      {/* =========================
+          PIPELINE STATUS
+      ========================= */}
+
+      <div className="pipeline-card">
+
+        <div>
+
+          <span>
+            RAG Pipeline
+          </span>
+
+          <strong>
+            Document Processing
+          </strong>
+
+        </div>
+
+
+        <div className="pipeline-stats">
+
+          <span className="pipeline-completed">
+            {completedDocuments} Ready
+          </span>
+
+          <span className="pipeline-processing">
+            {processingDocuments} Processing
+          </span>
+
+          <span className="pipeline-failed">
+            {failedDocuments} Failed
+          </span>
+
+        </div>
+
+      </div>
+
+
+      {/* =========================
+          ERROR
+      ========================= */}
+
+      {error && (
+
+        <div className="dashboard-error">
+
+          ⚠️ {error}
+
+        </div>
+
+      )}
+
+
+      {/* =========================
+          RECENT DOCUMENTS
+      ========================= */}
 
       <div className="dashboard-documents">
 
         <div className="dashboard-section-header">
 
-          <h3>
-            Recent Documents
-          </h3>
+          <div>
+
+            <h3>
+              Recent Documents
+            </h3>
+
+            <p>
+              Latest files in your knowledge base.
+            </p>
+
+          </div>
 
           <span>
-            {documents.length} total
+            {totalDocuments} total
           </span>
 
         </div>
@@ -246,8 +412,8 @@ function DocumentDashboard() {
             </strong>
 
             <p>
-              Upload a PDF to build
-              your knowledge base.
+              Upload a PDF to build your
+              knowledge base.
             </p>
 
           </div>
@@ -300,10 +466,12 @@ function DocumentDashboard() {
 
       </div>
 
+
     </section>
 
   );
 
 }
+
 
 export default DocumentDashboard;
