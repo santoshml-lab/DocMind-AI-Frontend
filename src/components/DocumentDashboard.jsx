@@ -6,11 +6,10 @@ const API_BASE =
 function DocumentDashboard() {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState(null);
 
   const fetchAnalytics = async () => {
     try {
-      setLoading(true);
-
       const response = await fetch(
         `${API_BASE}/analytics`
       );
@@ -24,12 +23,10 @@ function DocumentDashboard() {
       }
 
       setAnalytics(data);
+      setLastUpdated(new Date());
 
     } catch (error) {
-      console.error(
-        "Analytics error:",
-        error
-      );
+      console.error("Analytics error:", error);
     } finally {
       setLoading(false);
     }
@@ -49,7 +46,9 @@ function DocumentDashboard() {
   if (loading || !analytics) {
     return (
       <section className="dashboard-card">
+
         <div className="dashboard-header">
+
           <div>
             <span className="section-badge">
               DOCUMENT INTELLIGENCE
@@ -67,7 +66,9 @@ function DocumentDashboard() {
           <div className="dashboard-icon">
             📊
           </div>
+
         </div>
+
       </section>
     );
   }
@@ -81,10 +82,41 @@ function DocumentDashboard() {
   const health =
     knowledgeBase.health || "unknown";
 
+  const totalDocuments =
+    documents.total || 0;
+
+  const completedDocuments =
+    documents.completed || 0;
+
+  const processingDocuments =
+    documents.processing || 0;
+
+  const failedDocuments =
+    documents.failed || 0;
+
+  const totalPages =
+    knowledgeBase.total_pages || 0;
+
+  const totalChunks =
+    knowledgeBase.total_chunks || 0;
+
+
+  const healthLabel =
+    health === "healthy"
+      ? "Healthy"
+      : health === "processing"
+      ? "Processing"
+      : health === "attention_needed"
+      ? "Attention Needed"
+      : "Unknown";
+
+
   return (
     <section className="dashboard-card">
 
-      {/* HEADER */}
+      {/* =================================
+          HEADER
+      ================================= */}
 
       <div className="dashboard-header">
 
@@ -105,16 +137,29 @@ function DocumentDashboard() {
 
         </div>
 
-        <div className="dashboard-icon">
-          📊
+
+        <div className="dashboard-header-right">
+
+          <div className="dashboard-icon">
+            📊
+          </div>
+
+          <span className="live-indicator">
+            <span className="live-dot"></span>
+            Live
+          </span>
+
         </div>
 
       </div>
 
 
-      {/* METRICS */}
+      {/* =================================
+          METRICS
+      ================================= */}
 
       <div className="dashboard-metrics">
+
 
         <div className="dashboard-metric">
 
@@ -123,7 +168,7 @@ function DocumentDashboard() {
           </span>
 
           <strong>
-            {documents.total || 0}
+            {totalDocuments}
           </strong>
 
           <small>
@@ -140,7 +185,7 @@ function DocumentDashboard() {
           </span>
 
           <strong>
-            {documents.completed || 0}
+            {completedDocuments}
           </strong>
 
           <small>
@@ -157,7 +202,7 @@ function DocumentDashboard() {
           </span>
 
           <strong>
-            {documents.processing || 0}
+            {processingDocuments}
           </strong>
 
           <small>
@@ -174,7 +219,7 @@ function DocumentDashboard() {
           </span>
 
           <strong>
-            {knowledgeBase.total_chunks || 0}
+            {totalChunks}
           </strong>
 
           <small>
@@ -186,7 +231,9 @@ function DocumentDashboard() {
       </div>
 
 
-      {/* KNOWLEDGE BASE */}
+      {/* =================================
+          KNOWLEDGE BASE HEALTH
+      ================================= */}
 
       <div className="dashboard-health">
 
@@ -197,10 +244,14 @@ function DocumentDashboard() {
           </span>
 
           <strong>
-            {knowledgeBase.total_pages || 0} Pages
+            {totalPages} Pages
             {" • "}
-            {knowledgeBase.total_chunks || 0} Chunks
+            {totalChunks} Chunks
           </strong>
+
+          <small>
+            Vector knowledge base status
+          </small>
 
         </div>
 
@@ -211,30 +262,90 @@ function DocumentDashboard() {
 
           <span className="health-dot"></span>
 
-          {health === "healthy"
-            ? "Healthy"
-            : health === "processing"
-            ? "Processing"
-            : health === "attention_needed"
-            ? "Attention Needed"
-            : "Unknown"}
+          {healthLabel}
 
         </div>
 
       </div>
 
 
-      {/* FAILED DOCUMENTS */}
+      {/* =================================
+          SYSTEM SUMMARY
+      ================================= */}
 
-      {(documents.failed || 0) > 0 && (
+      <div className="dashboard-summary">
+
+        <div className="summary-item">
+
+          <span>
+            Documents indexed
+          </span>
+
+          <strong>
+            {completedDocuments}
+            {" / "}
+            {totalDocuments}
+          </strong>
+
+        </div>
+
+
+        <div className="summary-item">
+
+          <span>
+            Pages indexed
+          </span>
+
+          <strong>
+            {totalPages}
+          </strong>
+
+        </div>
+
+
+        <div className="summary-item">
+
+          <span>
+            RAG chunks
+          </span>
+
+          <strong>
+            {totalChunks}
+          </strong>
+
+        </div>
+
+
+        <div className="summary-item">
+
+          <span>
+            Failed
+          </span>
+
+          <strong>
+            {failedDocuments}
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      {/* =================================
+          WARNING
+      ================================= */}
+
+      {failedDocuments > 0 && (
 
         <div className="dashboard-warning">
 
-          ⚠️
+          <span>
+            ⚠️
+          </span>
 
           <span>
-            {documents.failed} document
-            {documents.failed !== 1
+            {failedDocuments} document
+            {failedDocuments !== 1
               ? "s"
               : ""} failed to process.
           </span>
@@ -242,6 +353,28 @@ function DocumentDashboard() {
         </div>
 
       )}
+
+
+      {/* =================================
+          FOOTER
+      ================================= */}
+
+      <div className="dashboard-footer">
+
+        <span>
+          RAG knowledge base monitoring
+        </span>
+
+        {lastUpdated && (
+
+          <span>
+            Updated{" "}
+            {lastUpdated.toLocaleTimeString()}
+          </span>
+
+        )}
+
+      </div>
 
     </section>
   );
