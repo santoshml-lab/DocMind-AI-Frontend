@@ -3,7 +3,7 @@ import { useState } from "react";
 import UploadBox from "./components/UploadBox";
 import DocumentList from "./components/DocumentList";
 import ChatBox from "./components/ChatBox";
-
+import EvaluatePanel from "./components/EvaluatePanel";
 
 
 function App() {
@@ -221,6 +221,19 @@ function App() {
         ========================= */}
 
         <ChatBox
+
+          documentId={
+            selectedDocumentId
+          }
+
+        />
+
+
+        {/* =========================
+            RAG EVALUATION
+        ========================= */}
+
+        <EvaluatePanel
 
           documentId={
             selectedDocumentId
