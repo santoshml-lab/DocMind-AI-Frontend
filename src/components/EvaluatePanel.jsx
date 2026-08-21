@@ -9,186 +9,88 @@ function EvaluatePanel({ documentId }) {
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
 
-  const [tests, setTests] = useState([
-    {
-      query: "What skills does Santosh have?",
-      expected_facts:
-        "Python, JavaScript, React.js, FastAPI",
-      expected_behavior: "answer"
-    },
-    {
-      query: "What projects has Santosh built?",
-      expected_facts:
-        "SalesPilot AI, NEET Learning Hub, InterviewAI",
-      expected_behavior: "answer"
-    },
-    {
-      query:
-        "What is Santosh's favorite programming language?",
-      expected_facts: "",
-      expected_behavior: "not_found"
-    }
-  ]);
-
-
-  // ==========================================
-  // UPDATE TEST
-  // ==========================================
-
-  const updateTest = (
-    index,
-    field,
-    value
-  ) => {
-
-    setTests((current) =>
-      current.map((test, i) =>
-        i === index
-          ? {
-              ...test,
-              [field]: value
-            }
-          : test
-      )
-    );
-  };
-
-
-  // ==========================================
-  // ADD TEST
-  // ==========================================
-
-  const addTest = () => {
-
-    setTests((current) => [
-      ...current,
-      {
-        query: "",
-        expected_facts: "",
-        expected_behavior: "answer"
-      }
-    ]);
-
-  };
-
-
-  // ==========================================
-  // REMOVE TEST
-  // ==========================================
-
-  const removeTest = (index) => {
-
-    setTests((current) =>
-      current.filter(
-        (_, i) => i !== index
-      )
-    );
-
-  };
-
-
-  // ==========================================
-  // RUN EVALUATION
-  // ==========================================
-
   const runEvaluation = async () => {
 
     if (!documentId) {
-
-      setError(
-        "Please select a document first."
-      );
-
+      setError("Please select a document first.");
       return;
     }
-
-
-    const validTests = tests.filter(
-      (test) =>
-        test.query.trim()
-    );
-
-
-    if (!validTests.length) {
-
-      setError(
-        "Please add at least one test question."
-      );
-
-      return;
-    }
-
 
     setLoading(true);
     setError("");
     setResult(null);
 
+    const tests = [
+      {
+        query: "What skills does Santosh have?",
 
-    const formattedTests =
-      validTests.map((test) => ({
+        expected_facts: [
+          "Python",
+          "JavaScript",
+          "React.js",
+          "FastAPI"
+        ],
 
+        expected_behavior: "answer"
+      },
+
+      {
+        query: "What projects has Santosh built?",
+
+        expected_facts: [
+          "SalesPilot AI",
+          "NEET Learning Hub",
+          "InterviewAI"
+        ],
+
+        expected_behavior: "answer"
+      },
+
+      {
         query:
-          test.query.trim(),
+          "What is Santosh's favorite programming language?",
 
-        expected_facts:
-          test.expected_facts
-            .split(",")
-            .map((fact) => fact.trim())
-            .filter(Boolean),
+        expected_facts: [],
 
-        expected_behavior:
-          test.expected_behavior
-
-      }));
-
+        expected_behavior: "not_found"
+      }
+    ];
 
     try {
 
       const response = await fetch(
         `${API_BASE}/evaluate`,
         {
-
           method: "POST",
 
           headers: {
-            "Content-Type":
-              "application/json"
+            "Content-Type": "application/json"
           },
 
           body: JSON.stringify({
-
-            document_id:
-              documentId,
-
-            tests:
-              formattedTests
-
+            document_id: documentId,
+            tests
           })
-
         }
       );
 
-
-      const data =
-        await response.json();
-
+      const data = await response.json();
 
       if (!response.ok) {
-
         throw new Error(
-          data.detail ||
-          "Evaluation failed."
+          data.detail || "Evaluation failed."
         );
-
       }
-
 
       setResult(data);
 
     } catch (error) {
 
+      console.error(error);
+
       setError(
-        error.message
+        error.message ||
+        "Something went wrong."
       );
 
     } finally {
@@ -196,7 +98,6 @@ function EvaluatePanel({ documentId }) {
       setLoading(false);
 
     }
-
   };
 
 
@@ -204,10 +105,7 @@ function EvaluatePanel({ documentId }) {
 
     <section className="evaluation-card">
 
-
-      {/* =====================================
-          HEADER
-      ===================================== */}
+      {/* HEADER */}
 
       <div className="evaluation-header">
 
@@ -222,12 +120,11 @@ function EvaluatePanel({ documentId }) {
           </h2>
 
           <p>
-            Create custom tests and measure
-            retrieval and answer quality.
+            Test retrieval accuracy and answer
+            quality for the selected document.
           </p>
 
         </div>
-
 
         <div className="evaluation-icon">
           🧪
@@ -236,166 +133,12 @@ function EvaluatePanel({ documentId }) {
       </div>
 
 
-      {/* =====================================
-          CUSTOM TEST BUILDER
-      ===================================== */}
-
-      <div className="test-builder">
-
-        <div className="test-builder-header">
-
-          <div>
-
-            <h3>
-              Evaluation Test Suite
-            </h3>
-
-            <p>
-              Add questions and expected facts
-              for your selected document.
-            </p>
-
-          </div>
-
-
-          <button
-            className="add-test-button"
-            onClick={addTest}
-          >
-            + Add Test
-          </button>
-
-        </div>
-
-
-        {tests.map(
-          (test, index) => (
-
-            <div
-              className="custom-test"
-              key={index}
-            >
-
-              <div className="custom-test-top">
-
-                <strong>
-                  Test {index + 1}
-                </strong>
-
-
-                {tests.length > 1 && (
-
-                  <button
-                    className="remove-test-button"
-                    onClick={() =>
-                      removeTest(index)
-                    }
-                  >
-                    Remove
-                  </button>
-
-                )}
-
-              </div>
-
-
-              {/* QUESTION */}
-
-              <label>
-                Question
-              </label>
-
-              <input
-                type="text"
-                value={test.query}
-                placeholder="Example: What skills does Santosh have?"
-                onChange={(event) =>
-                  updateTest(
-                    index,
-                    "query",
-                    event.target.value
-                  )
-                }
-              />
-
-
-              {/* EXPECTED FACTS */}
-
-              <label>
-                Expected Facts
-              </label>
-
-              <input
-                type="text"
-                value={test.expected_facts}
-                placeholder="Example: Python, FastAPI, Git"
-                disabled={
-                  test.expected_behavior ===
-                  "not_found"
-                }
-                onChange={(event) =>
-                  updateTest(
-                    index,
-                    "expected_facts",
-                    event.target.value
-                  )
-                }
-              />
-
-
-              <small className="field-help">
-                Separate multiple facts with commas.
-              </small>
-
-
-              {/* BEHAVIOR */}
-
-              <label>
-                Expected Behavior
-              </label>
-
-              <select
-                value={
-                  test.expected_behavior
-                }
-                onChange={(event) =>
-                  updateTest(
-                    index,
-                    "expected_behavior",
-                    event.target.value
-                  )
-                }
-              >
-
-                <option value="answer">
-                  Answer should be found
-                </option>
-
-                <option value="not_found">
-                  Information should not be found
-                </option>
-
-              </select>
-
-            </div>
-
-          )
-        )}
-
-      </div>
-
-
-      {/* =====================================
-          RUN BUTTON
-      ===================================== */}
+      {/* RUN BUTTON */}
 
       <button
         className="evaluate-button"
         onClick={runEvaluation}
-        disabled={
-          loading ||
-          !documentId
-        }
+        disabled={loading || !documentId}
       >
 
         {loading
@@ -405,9 +148,7 @@ function EvaluatePanel({ documentId }) {
       </button>
 
 
-      {/* =====================================
-          ERROR
-      ===================================== */}
+      {/* ERROR */}
 
       {error && (
 
@@ -418,18 +159,17 @@ function EvaluatePanel({ documentId }) {
       )}
 
 
-      {/* =====================================
-          RESULTS
-      ===================================== */}
+      {/* RESULTS */}
 
       {result && (
 
         <>
 
-          {/* METRICS */}
+          {/* =========================
+              METRICS
+          ========================= */}
 
           <div className="evaluation-metrics">
-
 
             <div className="metric-card">
 
@@ -489,7 +229,7 @@ function EvaluatePanel({ documentId }) {
               </span>
 
               <strong>
-                {result.unsupported_query_accuracy != null
+                {result.unsupported_query_accuracy !== null
                   ? `${result.unsupported_query_accuracy}%`
                   : "—"}
               </strong>
@@ -503,10 +243,11 @@ function EvaluatePanel({ documentId }) {
           </div>
 
 
-          {/* TEST SUMMARY */}
+          {/* =========================
+              TEST SUMMARY
+          ========================= */}
 
           <div className="evaluation-summary">
-
 
             <div>
 
@@ -549,7 +290,9 @@ function EvaluatePanel({ documentId }) {
           </div>
 
 
-          {/* TEST RESULTS */}
+          {/* =========================
+              TEST RESULTS
+          ========================= */}
 
           <div className="evaluation-tests">
 
@@ -558,93 +301,184 @@ function EvaluatePanel({ documentId }) {
             </h3>
 
 
-            {result.results?.map(
-              (test) => (
+            {result.results?.map((test) => (
 
-                <div
-                  className={`evaluation-test ${
-                    test.passed
-                      ? "test-passed"
-                      : "test-failed"
-                  }`}
-                  key={test.test_number}
-                >
+              <div
+                className={`evaluation-test ${
+                  test.passed
+                    ? "test-passed"
+                    : "test-failed"
+                }`}
+                key={test.test_number}
+              >
 
-                  <div className="test-top">
+                {/* TEST HEADER */}
 
-                    <strong>
-                      Test {test.test_number}
-                    </strong>
+                <div className="test-top">
 
-                    <span>
-                      {test.passed
-                        ? "✓ Passed"
-                        : "✕ Failed"}
-                    </span>
+                  <strong>
+                    Test {test.test_number}
+                  </strong>
 
-                  </div>
-
-
-                  <p className="test-question">
-                    {test.query}
-                  </p>
-
-
-                  {test.top_similarity != null && (
-
-                    <div className="test-similarity">
-
-                      Retrieval similarity:
-
-                      <strong>
-                        {" "}
-                        {Math.round(
-                          test.top_similarity * 100
-                        )}%
-                      </strong>
-
-                    </div>
-
-                  )}
-
-
-                  <div className="test-answer">
-
-                    <span>
-                      Answer
-                    </span>
-
-                    <p>
-                      {test.answer}
-                    </p>
-
-                  </div>
-
-
-                  {test.expected_facts?.length > 0 && (
-
-                    <div className="test-facts">
-
-                      <span>
-                        Matched Facts
-                      </span>
-
-                      <p>
-                        {test.matched_facts?.length
-                          ? test.matched_facts.join(
-                              ", "
-                            )
-                          : "No expected facts matched."}
-                      </p>
-
-                    </div>
-
-                  )}
+                  <span>
+                    {test.passed
+                      ? "✓ Passed"
+                      : "✕ Failed"}
+                  </span>
 
                 </div>
 
-              )
-            )}
+
+                {/* QUESTION */}
+
+                <p className="test-question">
+
+                  {test.query}
+
+                </p>
+
+
+                {/* RETRIEVAL */}
+
+                <div className="test-similarity">
+
+                  Retrieval similarity:
+
+                  <strong>
+
+                    {test.top_similarity != null
+                      ? ` ${Math.round(
+                          test.top_similarity * 100
+                        )}%`
+                      : " N/A"}
+
+                  </strong>
+
+                </div>
+
+
+                {/* ANSWER */}
+
+                <div className="test-answer">
+
+                  <span>
+                    Answer
+                  </span>
+
+                  <p>
+                    {test.answer ||
+                      "No answer generated."}
+                  </p>
+
+                </div>
+
+
+                {/* EXPECTED FACTS */}
+
+                {test.expected_facts?.length > 0 && (
+
+                  <div className="test-facts">
+
+                    <span>
+                      Expected Facts
+                    </span>
+
+                    <div className="fact-list">
+
+                      {test.expected_facts.map(
+                        (fact, index) => (
+
+                          <span
+                            className="fact-chip"
+                            key={index}
+                          >
+                            {fact}
+                          </span>
+
+                        )
+                      )}
+
+                    </div>
+
+                  </div>
+
+                )}
+
+
+                {/* MATCHED FACTS */}
+
+                {test.matched_facts?.length > 0 && (
+
+                  <div className="test-facts">
+
+                    <span>
+                      Matched Facts
+                    </span>
+
+                    <div className="fact-list">
+
+                      {test.matched_facts.map(
+                        (fact, index) => (
+
+                          <span
+                            className="fact-chip matched"
+                            key={index}
+                          >
+                            ✓ {fact}
+                          </span>
+
+                        )
+                      )}
+
+                    </div>
+
+                  </div>
+
+                )}
+
+
+                {/* FACT COVERAGE */}
+
+                {test.fact_coverage !== null &&
+                  test.fact_coverage !== undefined && (
+
+                  <div className="test-coverage">
+
+                    <span>
+                      Fact Coverage
+                    </span>
+
+                    <strong>
+                      {test.fact_coverage}%
+                    </strong>
+
+                  </div>
+
+                )}
+
+
+                {/* EXPECTED BEHAVIOR */}
+
+                <div className="test-behavior">
+
+                  <span>
+                    Expected Behavior
+                  </span>
+
+                  <strong>
+
+                    {test.expected_behavior ===
+                    "not_found"
+                      ? "Information should not be found"
+                      : "Answer should be found"}
+
+                  </strong>
+
+                </div>
+
+              </div>
+
+            ))}
 
           </div>
 
@@ -655,6 +489,7 @@ function EvaluatePanel({ documentId }) {
     </section>
 
   );
+
 }
 
 export default EvaluatePanel;
